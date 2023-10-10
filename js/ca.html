@@ -1,0 +1,104 @@
+<html>
+    <head>
+        <title>Create Account</title>
+        <style>
+        body{background-image: url(ca.jpg);}
+           h1{text-align: center;}
+           #class{text-align: center}
+
+        </style>
+    <script> 
+      function myvalidate(form) {
+        var FirstName = form.Firstname.value;
+        var LastName = form.Lastname.value;
+        var Regno=form.number.value;
+        var password=form.password.value;
+        var email=form.email.value;
+        var phno=form.mobilenumber.value;
+    
+        if(FirstName.length === 0) {
+            alert("You Must Enter valid Frist name");
+            return false;
+        }
+        if(LastName.length === 0) {
+            alert("You Must Enter valid Last name ");
+            return false;
+        }
+        if(Regno.length === 0) {
+            alert("You Must Enter valid registartion number");
+            return false;
+        }
+        if(email.length===0){
+            alert("enter valid email");
+            return False
+        }
+        if(phno.length===10){
+            alert("enter valid phone number");
+            return False
+        }
+        
+        var select=document.getElementById("select");
+        if(select==""){
+            alert("please select a selection");
+            return false;
+        }
+
+        if(password.length === 0) {
+            alert("You Must Enter valid Password ");
+            return false;
+        }  
+        
+      return true; 
+       }
+
+    </script>
+    </head>  
+ <body>
+    <h1>Create Account</h1>
+    <br>
+    <br>
+    <br>
+    <div id="class">
+    
+    <form  action="login.html"  onsubmit="return myvalidate(this);">
+
+    <label >First Name:</label>        
+    <input type="text" name="Firstname" size="10"><br>
+    <br>
+    <label>Last name :</label>         
+    <input type="text" name="Lastname" size="10"><br>
+    <br>
+    <label>Registration number :</label>
+    <input type="text"  name="number"><br>
+    <br>
+    <label> 
+        Branch :
+        </label> 
+        <select id="select">
+        <option value="Course">Course</option>
+        <option value="AID&S">AID&S</option>
+        <option value="CIVIL">CIVIL</option>
+        <option value="CSE">CSE</option>
+        <option value="ECE">ECE</option>
+        <option value="EEE">ECE</option>
+        <option value="MECH">MECH</option>
+        </select><br>
+        <br>
+        
+        <label> 
+        Phone Number :
+        </label>
+        <input type="text" id="mobilenumber" value=" ">
+        <span id="messages"></span> <br>
+        <br>
+        <label>Email:</label>
+        <input type="email"  name="email"  size="34"><br>  
+        <br>
+         <label>Password: </label> 
+        <input type="password" name="password" size="10"><br>
+        <br>
+        <input type="submit" value="Submit">
+    </form>
+    </div>
+ </body> 
+</html>
