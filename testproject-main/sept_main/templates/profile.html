@@ -1,0 +1,189 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    
+</head>
+<style>
+    body{
+        background-color: rgb(150, 150, 114);
+    }
+#userprofile{
+    
+    position: absolute;
+    top: 20px;
+    width:230px;
+    border: 1px solid red;
+    margin-left: 1020px;
+    padding: 10px;
+    background-color: aqua;
+    border-radius: 10px;
+    background-color: aqua;
+}
+
+.category{
+    box-sizing: border-box;
+    padding-top:80px;
+    border:1px solid red;
+    border-radius: 10px ;
+    width:400px;
+    height:300px;
+    background-color: rgb(0, 255, 17);
+    margin: 10px;
+
+}
+#display{
+    display: flex;
+}
+.decres{
+    width: 600px;
+}
+#alert_popup{
+    display: flex;
+}
+#expiry_update{
+    background-color: rgb(93, 54, 125);
+}
+</style>
+<body>
+    <div id="alert_popup">
+        <div>
+            {% if latest_books %}
+                <div class="alert alert-warning alert-dismissible fade show decres" role="alert">
+                    <h3>Latest Books are </h3>
+                    <ol>
+                        {% for latest_book in latest_books %}
+                        <li>{{ latest_book.book_name }}</option>
+                        {% endfor %}
+                    </ol>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% else %}
+                <div class="alert alert-warning alert-dismissible fade show decres" role="alert">
+                    <h3>Latest Books are </h3>
+                    No latest books are available
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+        </div>
+        <div id="expiry_update">
+            {% if current_date %}
+            <ul>
+                {% for book, transaction_details,expiry in user_with_transaction %}
+                <li>
+                    Book Name: {{ book.book_name }}
+                    <ul>
+                        {% for transaction in transaction_details %}
+                        <li>
+                            <strong>Book Id:</strong> {{ transaction.book_id.bookid }}
+                            <strong>Book taken date:</strong> {{ transaction.taken_date }}
+                        </li>
+                        {% if expiry %}
+                         <strong style="color:red">The book got Expired</strong>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            
+        </div>
+    </div>
+
+    
+    <div id="display">
+        <div class="category">
+            <h3>Books available in Librariy</h3>
+            <form action="{% url 'take_book' %}" method="post">
+                {% csrf_token %} 
+                <select id="category-dropdown" name="category-dropdown">
+                    <option value="">Select a category</option>
+                    {% for category in all_categories %}
+                        <option value="{{ category.Categorie_id }}">{{ category.Categorie_name }}</option>
+                    {% endfor %}
+                </select>
+                <select id="book-dropdown" name="books-dropdown">
+                    <option value="">Select a book</option>
+                </select>
+                <button type="submit">submit</button>
+            </form>
+        </div>
+        <div class="category">
+            <div>
+                <h3>Books Taken</h3>
+                <form action="{% url 'returnbook' %}" method="post">
+                    {% csrf_token %} 
+                    <ol>
+                        {% for book in user_taken_books %}
+                        <li>
+                            {{ book.book_name }}
+                            <input type="hidden" value="{{ book.bookid }}">
+                            <button type="submit" name="return_book_id" value="{{ book.bookid }}">Return</button>
+                        </li>
+                        {% endfor %}
+                    </ol>
+                </form>
+            </div>
+            
+        </div>
+    </div>
+
+
+    <div id="userprofile">
+        {% block content %}
+      <h2>Your Profile</h2>
+      <p><strong>Username Name:</strong> {{ user.customer_name }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Date of Birth:</strong> {{ user.dob }}</p>
+      <p><strong>Address:</strong> {{ user.address }}</p>
+      <p><strong>Gender:</strong> {{ user.gender }}</p>
+      <a href="{% url 'custom_logout' %}">Logout</a>
+    {% endblock %}
+
+<script>
+    // Add the JavaScript/jQuery code here
+    $(document).ready(function() {
+        // Handle change event of category dropdown
+        $("#category-dropdown").change(function() {
+            var category_id = $(this).val();
+            console.log(category_id)
+            if (category_id) {
+                $.ajax({
+                    url: "{% url 'get_books_by_category' %}",
+                    data: { category_id: category_id },
+                    dataType: 'json',
+                    success: function(data) {
+                        // Clear existing options
+                        $("#book-dropdown").html('<option value="">Select a book</option>');
+
+                        // Populate the book dropdown with retrieved data
+                        $.each(data.books, function(key, value) {
+                            $("#book-dropdown").append('<option value="' + value.bookid + '">' + value.book_name + '</option>');
+                        });
+                    }
+                });
+            } else {
+                // If no category selected, clear the book dropdown
+                $("#book-dropdown").html('<option value="">Select a book</option>');
+            }
+        });
+    });
+
+
+
+</script>
+
+</div>
+</body>
+</html>
